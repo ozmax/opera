@@ -1,14 +1,25 @@
+from django.contrib import messages
 from django.http import HttpResponse
+from django.shortcuts import render, redirect
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
 
-from .utils import insert_triple
+from .forms import InsertForm
 
 
-@csrf_exempt
-@require_http_methods(['POST'])
-def add_triple(request):
-    data = request.POST
-    response = insert_triple(data)
-    django_response = HttpResponse(status=response.status_code)
-    return django_response
+def insert_data(request):
+    form =  InsertForm(request.POST or None)
+    status = ''
+    if form.is_valid():
+        response = form.insert()
+        if response.status_code == 201:
+            status = 'Success with 201'
+            messages.success(request, status)
+            return redirect('insert')
+        else:
+            status = 'Query failed with code %s' % response.status_code
+    context = {
+        'form': form,
+        'status': status,
+    }
+    return render(request, 'virtuoso/insert.html', context)

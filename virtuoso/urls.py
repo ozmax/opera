@@ -3,5 +3,5 @@ from django.conf.urls import url
 from . import views
 
 urlpatterns = [
-    url(r'^add/triple', views.add_triple, name='virtuoso_add_triple'),
+    url(r'^insert/$', views.insert_data, name='insert'),
 ]

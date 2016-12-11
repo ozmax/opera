@@ -1,0 +1,19 @@
+<form action="" method="POST">
+{% csrf_token %}
+{{ form.as_p }}
+<input type="submit">
+</form>
+
+{% for message in messages %}
+	{{ message }}
+{% endfor %}
+
+{{ status }}
+
+<hr>
+
+template 1: insert {&lt;foo&gt; &lt;bar&gt; &lt;baz&gt;}
+<br>
+template 2: insert {&lt;foo&gt; &lt;bar&gt; &lt;baz&gt;.
+					&lt;foo1&gt; &lt;bar1&gt; &lt;baz1&gt;
+}
