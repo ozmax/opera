@@ -8,11 +8,12 @@ from .forms import InsertForm
 
 
 def insert_data(request):
-    form =  InsertForm(request.POST or None)
+    form = InsertForm(request.POST or None)
     status = ''
     if form.is_valid():
         response = form.insert()
         if response.status_code == 201:
+            form.notify_remotes()
             status = 'Success with 201'
             messages.success(request, status)
             return redirect('insert')
