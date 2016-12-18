@@ -1,7 +1,8 @@
 from django import forms
-from django.contrib.auth import authenticate, login
+from django.contrib.auth import authenticate
 
 from .utils import save_resource
+
 
 class NotificationForm(forms.Form):
     username = forms.CharField(max_length=255)
@@ -9,7 +10,6 @@ class NotificationForm(forms.Form):
     source = forms.CharField(max_length=255)
     resource = forms.CharField(max_length=255)
     predicate = forms.CharField(max_length=255)
-
 
     def save(self):
         username = self.cleaned_data['username']
@@ -21,4 +21,4 @@ class NotificationForm(forms.Form):
             result = save_resource(source, resource, predicate)
             return result
         else:
-            print 'Nope'
+            pass

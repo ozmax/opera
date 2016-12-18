@@ -1,13 +1,13 @@
 from django import forms
 
-from .utils import make_query, get_triplets, send_notif, \
-    REGISTERED_ENDPOINTS
+from .utils import MY_ENDPOINT, REGISTERED_ENDPOINTS, get_triplets, \
+    make_query, send_notif
 
 
 class InsertForm(forms.Form):
     username = forms.CharField()
-    password = forms.CharField(widget=forms.PasswordInput())
-    query = forms.CharField(widget=forms.Textarea)
+    password = forms.CharField(widget=forms.PasswordInput(render_value=True))
+    query = forms.CharField(widget=forms.Textarea, required=False)
 
     def insert(self):
         response = make_query(self.cleaned_data)
@@ -16,7 +16,12 @@ class InsertForm(forms.Form):
     def notify_remotes(self):
         triplets = get_triplets(self.cleaned_data['query'])
         for triple in triplets:
-            if triple[0] in REGISTERED_ENDPOINTS:
-                send_notif(triple[0])
-            if triple[2] in REGISTERED_ENDPOINTS:
-                send_notif(triple[2])
+            subject, predicate, obj = triple
+            for endpoint in REGISTERED_ENDPOINTS.keys():
+                if endpoint in subject:
+                    username = REGISTERED_ENDPOINTS[endpoint]['username']
+                    password = REGISTERED_ENDPOINTS[endpoint]['password']
+
+                    send_notif(
+                        username, password, MY_ENDPOINT, subject, predicate,
+                    )
