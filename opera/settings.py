@@ -18,6 +18,7 @@ INSTALLED_APPS = [
 
     'opera',
     'virtuoso',
+    'trends',
 ]
 
 MIDDLEWARE = [
