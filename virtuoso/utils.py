@@ -23,14 +23,15 @@ def make_query(data):
     username = data.get('username', '')
     password = data.get('password', '')
     query = data.get('query', '')
-
+    file_query = data.get('upload', '')
+    data = query if query else file_query
     headers = HEADERS['sparql_query']
 
     response = requests.post(
         url=VIRTUOSO_ENDPOINT,
         headers=headers,
         auth=(username, password),
-        data=query
+        data=data
     )
     return response
 
@@ -59,6 +60,4 @@ def send_notif(username, password, target_url, endpoint, resource, predicate):
         'predicate': predicate,
     }
     url = '%s/trends/notify/' % target_url
-    r = requests.post(url, data=data)
-    print url
-    print r
+    requests.post(url, data=data)

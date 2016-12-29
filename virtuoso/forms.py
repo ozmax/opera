@@ -8,6 +8,14 @@ class InsertForm(forms.Form):
     username = forms.CharField()
     password = forms.CharField(widget=forms.PasswordInput(render_value=True))
     query = forms.CharField(widget=forms.Textarea, required=False)
+    upload = forms.FileField(required=False)
+
+    def clean(self):
+        data = self.cleaned_data
+        if (data.get('query') and data.get('upload') or
+                (not data.get('query') and not data.get('upload'))):
+            raise forms.ValidationError('Fill query OR file')
+        return data
 
     def insert(self):
         response = make_query(self.cleaned_data)

@@ -5,7 +5,7 @@ from .forms import InsertForm
 
 
 def insert_data(request):
-    form = InsertForm(request.POST or None)
+    form = InsertForm(request.POST or None, request.FILES or None)
     status = ''
     if form.is_valid():
         response = form.insert()
