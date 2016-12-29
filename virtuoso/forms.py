@@ -1,7 +1,7 @@
 from django import forms
 
-from .utils import MY_ENDPOINT, REGISTERED_ENDPOINTS, get_triplets, \
-    make_query, send_notif
+from .conf import MY_ENDPOINT, REGISTERED_ENDPOINTS
+from .utils import get_triplets, make_query, send_notif
 
 
 class InsertForm(forms.Form):
