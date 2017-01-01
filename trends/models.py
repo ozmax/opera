@@ -22,4 +22,3 @@ class Backlink(models.Model):
     endpoint = models.ForeignKey(Endpoint)
     predicate = models.CharField(max_length=255)
     count = models.IntegerField(default=1)
-

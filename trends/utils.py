@@ -7,12 +7,10 @@ def save_resource(endpoint, resource, predicate):
     except Endpoint.DoesNotExist:
         endpoint = Endpoint.objects.create(uri=endpoint)
 
-
     try:
         resource = Resource.objects.get(uri=resource)
     except Resource.DoesNotExist:
         resource = Resource.objects.create(uri=resource)
-
 
     try:
         backlink = Backlink.objects.get(
