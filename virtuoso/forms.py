@@ -22,7 +22,17 @@ class InsertForm(forms.Form):
         return response
 
     def notify_remotes(self):
-        triplets = get_triplets(self.cleaned_data['query'])
+        data = self.cleaned_data
+
+        if data.get('upload'):
+            data_string = ''
+            for line in data['upload']:
+                data_string += line
+
+        else:
+            data_string = data['query']
+
+        triplets = get_triplets(data_string)
         for triple in triplets:
             subject, predicate, obj = triple
             for endpoint in REGISTERED_ENDPOINTS.keys():
