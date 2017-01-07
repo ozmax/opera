@@ -8,7 +8,7 @@ def insert_data(request):
     form = InsertForm(request.POST or None, request.FILES or None)
     status = ''
     if form.is_valid():
-        response = form.insert()
+        response = form.virtuoso_insert()
         if response.status_code == 201:
             form.notify_remotes()
             status = 'Success with 201'

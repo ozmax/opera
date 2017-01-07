@@ -1,7 +1,9 @@
+import requests
+
 from django import forms
 
-from .conf import MY_ENDPOINT, REGISTERED_ENDPOINTS
-from .utils import get_triplets, make_query, send_notif
+from .conf import MY_ENDPOINT, REGISTERED_ENDPOINTS, HEADERS, VIRTUOSO_ENDPOINT
+from .utils import get_triplets, send_notif
 
 
 class InsertForm(forms.Form):
@@ -19,6 +21,21 @@ class InsertForm(forms.Form):
 
     def insert(self):
         response = make_query(self.cleaned_data)
+    def virtuoso_insert(self):
+        data = self.cleaned_data
+        username = data.get('username', '')
+        password = data.get('password', '')
+        query = data.get('query', '')
+        file_query = data.get('upload', '')
+        data = query if query else file_query
+        headers = HEADERS['sparql_query']
+
+        response = requests.post(
+            url=VIRTUOSO_ENDPOINT,
+            headers=headers,
+            auth=(username, password),
+            data=data
+        )
         return response
 
     def notify_remotes(self):

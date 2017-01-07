@@ -2,25 +2,6 @@ from rdflib.plugins.sparql import parser
 
 import requests
 
-from .conf import HEADERS, VIRTUOSO_ENDPOINT
-
-
-def make_query(data):
-    username = data.get('username', '')
-    password = data.get('password', '')
-    query = data.get('query', '')
-    file_query = data.get('upload', '')
-    data = query if query else file_query
-    headers = HEADERS['sparql_query']
-
-    response = requests.post(
-        url=VIRTUOSO_ENDPOINT,
-        headers=headers,
-        auth=(username, password),
-        data=data
-    )
-    return response
-
 
 def get_triplets(query):
     query = query.replace('INSERT', 'INSERT DATA', 1)
