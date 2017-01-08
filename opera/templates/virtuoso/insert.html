@@ -4,12 +4,13 @@
 <input type="submit">
 </form>
 
-{% for message in messages %}
-	{{ message }}
-{% endfor %}
-
-{{ status }}
-
+{% if messages %}
+<ul class="messages">
+    {% for message in messages %}
+    <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+    {% endfor %}
+</ul>
+{% endif %}
 <hr>
 
 template 1: insert {&lt;foo&gt; &lt;bar&gt; &lt;baz&gt;}

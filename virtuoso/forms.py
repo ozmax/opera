@@ -2,8 +2,9 @@ import requests
 
 from django import forms
 
-from .conf import MY_ENDPOINT, REGISTERED_ENDPOINTS, HEADERS, VIRTUOSO_ENDPOINT
-from .utils import get_triplets, send_notif
+from .conf import HEADERS, VIRTUOSO_ENDPOINT
+from .models import RemoteServer, NotificationRequest
+from .parser import parse_query
 
 
 class InsertForm(forms.Form):
@@ -19,8 +20,6 @@ class InsertForm(forms.Form):
             raise forms.ValidationError('Fill query OR file')
         return data
 
-    def insert(self):
-        response = make_query(self.cleaned_data)
     def virtuoso_insert(self):
         data = self.cleaned_data
         username = data.get('username', '')
@@ -38,25 +37,33 @@ class InsertForm(forms.Form):
         )
         return response
 
-    def notify_remotes(self):
+    def create_notifications(self):
+        # get parsed query
         data = self.cleaned_data
-
         if data.get('upload'):
-            data_string = ''
+            query = ''
             for line in data['upload']:
-                data_string += line
-
+                query += line
         else:
-            data_string = data['query']
+            query = data['query']
 
-        triplets = get_triplets(data_string)
-        for triple in triplets:
-            subject, predicate, obj = triple
-            for endpoint in REGISTERED_ENDPOINTS.keys():
-                if endpoint in subject:
-                    username = REGISTERED_ENDPOINTS[endpoint]['username']
-                    password = REGISTERED_ENDPOINTS[endpoint]['password']
+        records = parse_query(query)
 
-                    send_notif(
-                        username, password, MY_ENDPOINT, subject, predicate,
+        # create notification objects from records
+        servers = RemoteServer.objects.all()
+        for record in records:
+            subject, predicate, obj = record
+
+            for server in servers:
+                if server.url in subject:
+                    NotificationRequest.objects.create(
+                        remote=server,
+                        resource=subject,
+                        predicate=predicate,
+                    )
+                if server.url in obj:
+                    NotificationRequest.objects.create(
+                        remote=server,
+                        resource=obj,
+                        predicate=predicate,
                     )
