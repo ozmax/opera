@@ -5,6 +5,7 @@ from django import forms
 from .conf import HEADERS, VIRTUOSO_ENDPOINT
 from .models import RemoteServer, NotificationRequest
 from .parser import parse_query
+from .tasks import notify_remote
 
 
 class InsertForm(forms.Form):
@@ -49,21 +50,22 @@ class InsertForm(forms.Form):
 
         records = parse_query(query)
 
-        # create notification objects from records
         servers = RemoteServer.objects.all()
         for record in records:
             subject, predicate, obj = record
 
             for server in servers:
                 if server.url in subject:
-                    NotificationRequest.objects.create(
+                    notif = NotificationRequest.objects.create(
                         remote=server,
                         resource=subject,
                         predicate=predicate,
                     )
+                    notify_remote.delay(notif.pk)
                 if server.url in obj:
                     NotificationRequest.objects.create(
                         remote=server,
                         resource=obj,
                         predicate=predicate,
                     )
+                    notify_remote.delay(notif.pk)
