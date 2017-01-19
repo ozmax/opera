@@ -73,3 +73,13 @@ USE_TZ = True
 
 
 STATIC_URL = '/static/'
+
+# celery
+RABBITMQ_USER = '****'
+RABBITMQ_PASSWORD = '****'
+RABBITMQ_VHOST = '****'
+BROKER_URL = 'amqp://%s:%s@localhost:5672/%s' % (
+    RABBITMQ_USER,
+    RABBITMQ_PASSWORD,
+    RABBITMQ_VHOST,
+)

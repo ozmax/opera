@@ -1,3 +1,11 @@
 Django==1.10.4
 psycopg2==2.6.2
 requests==2.12.3
+celery==4.0.2
+
+# requirements of requirements
+amqp==2.1.4
+billiard==3.5.0.2
+kombu==4.0.2
+pytz==2016.10
+vine==1.1.3
