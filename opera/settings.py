@@ -88,3 +88,8 @@ BROKER_URL = 'amqp://%s:%s@localhost:5672/%s' % (
 # retry every hour for the next 3 days
 RETRY_DELAY = 3600  # in seconds
 MAX_RETRIES = 72  # 3 * 24
+
+# settings for virtuoso
+VIRTUOSO_ENDPOINT = 'http://83.212.116.88:8890/DAV/xx/demo'
+
+MY_ENDPOINT = 'http://localhost:8000/'
