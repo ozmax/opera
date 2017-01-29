@@ -2,15 +2,17 @@ import requests
 
 from django import forms
 
-from .conf import HEADERS, VIRTUOSO_ENDPOINT
+from .conf import VIRTUOSO_ENDPOINT
 from .models import RemoteServer, NotificationRequest
 from .parser import parse_query
 from .tasks import notify_remote
 
 
 class InsertForm(forms.Form):
-    username = forms.CharField()
-    password = forms.CharField(widget=forms.PasswordInput(render_value=True))
+    username = forms.CharField(initial='demo')
+    password = forms.CharField(
+        widget=forms.PasswordInput(render_value=True), initial='demo'
+    )
     query = forms.CharField(widget=forms.Textarea, required=False)
     upload = forms.FileField(required=False)
 
@@ -22,13 +24,14 @@ class InsertForm(forms.Form):
         return data
 
     def virtuoso_insert(self):
+        headers = {'Content-Type': 'application/sparql-query'}
+
         data = self.cleaned_data
         username = data.get('username', '')
         password = data.get('password', '')
         query = data.get('query', '')
         file_query = data.get('upload', '')
         data = query if query else file_query
-        headers = HEADERS['sparql_query']
 
         response = requests.post(
             url=VIRTUOSO_ENDPOINT,
