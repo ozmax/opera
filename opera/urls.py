@@ -6,6 +6,8 @@ import trends.urls
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
+
+    url(r'^$', include(virtuoso.urls)),
     url(r'^virtuoso/', include(virtuoso.urls)),
     url(r'^trends/', include(trends.urls)),
 ]
