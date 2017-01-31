@@ -1,8 +1,8 @@
 import requests
 
 from django import forms
+from django.conf import settings
 
-from .conf import VIRTUOSO_ENDPOINT
 from .models import RemoteServer, NotificationRequest
 from .parser import parse_query
 from .tasks import notify_remote
@@ -34,7 +34,7 @@ class InsertForm(forms.Form):
         data = query if query else file_query
 
         response = requests.post(
-            url=VIRTUOSO_ENDPOINT,
+            url=settings.VIRTUOSO_ENDPOINT,
             headers=headers,
             auth=(username, password),
             data=data

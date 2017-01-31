@@ -2,11 +2,7 @@ import os
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-SECRET_KEY = '#v@nlk8a1+ixv6ih)v4gq*gf95dro8ls(ko69b(vy+^3qlcfg0'
-
-DEBUG = True
-
-ALLOWED_HOSTS = []
+DEBUG = False
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -51,7 +47,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'opera.wsgi.application'
 
-
 # Database
 DATABASES = {
     'default': {
@@ -71,25 +66,6 @@ USE_L10N = True
 
 USE_TZ = True
 
-
 STATIC_URL = '/static/'
 
-# celery
-RABBITMQ_USER = '****'
-RABBITMQ_PASSWORD = '****'
-RABBITMQ_VHOST = '****'
-BROKER_URL = 'amqp://%s:%s@localhost:5672/%s' % (
-    RABBITMQ_USER,
-    RABBITMQ_PASSWORD,
-    RABBITMQ_VHOST,
-)
-
-# retry policy
-# retry every hour for the next 3 days
-RETRY_DELAY = 3600  # in seconds
-MAX_RETRIES = 72  # 3 * 24
-
-# settings for virtuoso
-VIRTUOSO_ENDPOINT = 'http://83.212.116.88:8890/DAV/xx/demo'
-
-MY_ENDPOINT = 'http://localhost:8000/'
+from local_settings import *  # noqa
