@@ -4,7 +4,6 @@ from django.conf import settings
 
 from celery import shared_task
 
-from virtuoso.conf import MY_ENDPOINT
 from .models import NotificationRequest
 
 
@@ -17,7 +16,7 @@ def notify_remote(notif_id):
         'username': notif.remote.username,
         'password': notif.remote.password,
 
-        'source': MY_ENDPOINT,
+        'source': settings.MY_ENDPOINT,
         'resource': notif.resource,
         'predicate': notif.predicate,
     }
