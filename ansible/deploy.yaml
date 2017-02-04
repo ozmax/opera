@@ -1,0 +1,220 @@
+---
+- hosts: servers
+  become: true
+  tasks:
+
+  - name: update apt cache
+    apt:
+      update_cache=true
+
+  - name: apt packages are installed
+    apt: name={{ item }}
+    with_items:
+      - python2.7
+      - python-pip
+      - python2.7-dev
+      - python-virtualenv
+      - git
+
+  - name: user exists
+    user:
+      name={{ unix_user }}
+      state=present
+      shell=/bin/bash
+      generate_ssh_key=true
+      ssh_key_comment={{ unix_user }}@{{ ansible_fqdn }}
+
+  - name: postgres and psycopg2 are installed
+    apt: name={{ item }}
+    with_items:
+    - postgresql
+    - postgresql-contrib
+    - libpq-dev
+    - python-psycopg2
+
+  - name: configure postgres
+    replace:
+      dest=/etc/postgresql/9.4/main/pg_hba.conf
+      regexp='^(local\s+)all(\s+all\s+peer)$'
+      replace='\1sameuser\2'
+    notify:
+    - reload postgres
+
+  - name: database exists
+    become_user: postgres
+    postgresql_db:
+      name={{ postgresql_db }}
+      template=template0
+      encoding=UTF8
+      lc_collate=en_US.UTF-8
+      lc_ctype=en_US.UTF-8
+
+  - name: postgres user exists
+    become_user: postgres
+    postgresql_user:
+      name={{ postgresql_user }}
+
+  - name: deployment directory exists
+    file:
+      state=directory
+      path={{ deployment_path }}
+      owner={{ unix_user }}
+      group={{ unix_user }}
+
+  - name: cloned repo
+    become_user: '{{ unix_user }}'
+    git:
+      dest={{ deployment_path }}
+      repo={{ repo }}
+      version=master
+      accept_hostkey=true
+
+  - name: python modules are installed
+    become_user: '{{ unix_user }}'
+    pip:
+      requirements={{ deployment_path }}/requirements.txt
+      virtualenv={{ virtualenv }}
+
+  - name: local_settings exist
+    template:
+      src=local_settings.conf
+      dest={{ deployment_path }}/{{ project_name }}/{{ django_conf }}
+
+  - name: models are migrated
+    become_user: '{{ unix_user }}'
+    django_manage:
+      app_path={{ deployment_path }}
+      virtualenv={{ virtualenv }}
+      command=migrate
+
+  - name: ensure static files are collected
+    become_user: '{{ unix_user }}'
+    django_manage:
+        app_path={{ deployment_path }}
+        virtualenv={{ virtualenv }}
+        command=collectstatic
+
+  - name: nginx is installed
+    apt: name=nginx
+
+  - name: nginx log directory exists
+    file:
+      state=directory
+      path=/var/log/nginx/{{ project_name }}
+      owner=www-data
+
+  - name: nginx configuration in sites-available
+    template: >
+        dest=/etc/nginx/sites-available/{{ nginx_conf }}
+        src=nginx.conf
+    notify:
+    - reload nginx
+
+  - name: nginx conf is symlinked to sites-enabled
+    file: >
+        src=/etc/nginx/sites-available/{{ nginx_conf }}
+        path=/etc/nginx/sites-enabled/{{ nginx_conf }}
+        state=link
+
+  - name: reload ready nginx
+    service:
+      name=nginx
+      state=reloaded
+
+  - name: uwsgi and plugins installed
+    apt: name={{ item }}
+    with_items:
+    - uwsgi
+    - uwsgi-plugin-python
+
+  - name: uwsgi configured
+    lineinfile:
+      dest=/etc/default/uwsgi
+      line='export LANG=en_US.UTF-8'
+      insertafter=EOF
+
+  - name: uwsgi conf in apps-available
+    template:
+      dest=/etc/uwsgi/apps-available/{{ uwsgi_app }}.ini
+      src=uwsgi.ini
+
+  - name: uwsgi conf symlinked to apps-enabled
+    file:
+      src=/etc/uwsgi/apps-available/{{ uwsgi_app }}.ini
+      path=/etc/uwsgi/apps-enabled/{{ uwsgi_app }}.ini
+      state=link
+
+  - name: uwsgi restarted
+    service:
+      name=uwsgi
+      state=restarted
+
+  - name: services are running
+    service:
+      name={{ item.name }}
+      state=restarted
+      enabled=true
+      arguements={{ item.arguments|default(omit) }}
+    with_items:
+    - name: postgresql
+    - name: nginx
+    - name: uwsgi
+      arguements: '{{ uwsgi_app }}'
+
+  - name: rabbitmq is installed
+    apt:
+      name=rabbitmq-server
+
+  - name: rabbitmq vhost is created
+    rabbitmq_vhost: name={{ rabbitmq_vhost }}
+
+  - name: rabbitmq user is created
+    rabbitmq_user: >
+        user={{ rabbitmq_user }}
+        password={{ rabbitmq_password }}
+        vhost={{ rabbitmq_vhost }}
+        configure_priv=.*
+        read_priv=.*
+        write_priv=.*
+
+  - name: celeryd init script exists
+    template:
+      dest=/etc/init.d/{{ celery_app }}
+      src=templates/celeryd-{{ project_name }}
+    notify:
+    - restart celeryd
+
+  - name: celery init script permissions
+    file:
+      path=/etc/init.d/{{ celery_app }}
+      owner=root
+      group=root
+      mode=700
+
+  - name: celeryd configuration is copied
+    template:
+      dest=/etc/default/{{ celery_app }}
+      src=templates/{{ celery_app }}-default
+
+  - name: celery configuration permissions
+    file:
+      path=/etc/default/{{ celery_app }}
+      owner=root
+      group=root
+      mode=600
+
+  handlers:
+    - name: reload postgres
+      service:
+        name: postgres
+        state: reloaded
+
+    - name: reload nginx
+      service:
+        name=nginx
+        state=reloaded
+
+    - name: restart celeryd
+      service:
+        name={{ celery_service }}
+        state=restarted
