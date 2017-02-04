@@ -9,10 +9,8 @@ from .tasks import notify_remote
 
 
 class InsertForm(forms.Form):
-    username = forms.CharField(initial='demo')
-    password = forms.CharField(
-        widget=forms.PasswordInput(render_value=True), initial='demo'
-    )
+    username = forms.CharField()
+    password = forms.CharField(widget=forms.PasswordInput(render_value=True))
     query = forms.CharField(widget=forms.Textarea, required=False)
     upload = forms.FileField(required=False)
 
