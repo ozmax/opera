@@ -4,7 +4,7 @@ from django.shortcuts import redirect, render
 from .forms import InsertForm
 
 
-def insert_data(request):
+def query_data(request):
     form = InsertForm(request.POST or None, request.FILES or None)
     status = ''
     if form.is_valid():
