@@ -194,7 +194,7 @@
   - name: celeryd configuration is copied
     template:
       dest=/etc/default/{{ celery_app }}
-      src=templates/{{ celery_app }}-default
+      src=templates/{{ celery_service }}-default
 
   - name: celery configuration permissions
     file:
