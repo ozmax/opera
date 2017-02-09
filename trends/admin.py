@@ -15,4 +15,5 @@ class ResourceAdmin(admin.ModelAdmin):
 
 @admin.register(Backlink)
 class BacklinkAdmin(admin.ModelAdmin):
-    pass
+    # list
+    list_display = ['resource', 'endpoint', 'predicate', 'count']
