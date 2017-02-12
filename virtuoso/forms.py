@@ -79,11 +79,9 @@ class SelectForm(QueryBaseForm):
 
 
 class InsertForm(QueryBaseForm):
-    username = forms.CharField(initial='demo')
+    username = forms.CharField()
     password = forms.CharField(
-        widget=forms.PasswordInput(render_value=True),
-        initial='demo'
-    )
+        widget=forms.PasswordInput(render_value=True))
     query = forms.CharField(widget=forms.Textarea, required=False)
     upload = forms.FileField(required=False)
 

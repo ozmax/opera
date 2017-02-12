@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+{% load staticfiles %}
+
+<html>
+<head>
+	<title>Welcome to opera, a virtuoso extension over web</title>
+	<link rel="stylesheet" type="text/css" href="{% static 'opera/dist/screen.css' %}">
+</head>
+<body>
+<h1>Welcome to opera, a virtuoso extension over web</h1>
+
+<hr>
+
+<a class="trigger insert-trigger {% if active_form == 'insert' %}active{% endif %}" href="#">Insert</a>
+<a class="trigger select-trigger {% if active_form == 'select' %}active{% endif %}" href="#">Select</a>
+
+<div class="form-container {{ active_form }}">
+
+	<form class="select-form" method="POST" action="{% url 'virtuoso_select' %}" enctype="multipart/form-data">
+		{% csrf_token %}
+
+		<h2>Virtuoso select/ask/describe/construct form</h2>
+
+		{% for field in select_form %}
+			<div class="{{ field.name }}">
+				{{ field.label_tag }}
+				{{ field }}
+
+				<ul class="errorlist">
+				{% for error in field.errors %}
+					<li>{{ error }}</li>
+				{% endfor %}
+				</ul>
+			</div>
+		{% endfor %}
+
+		<input type="submit" class="submit-button">
+
+		{{ select_form.non_field_errors }}
+
+		{% if active_form == 'select' %}
+			{% if messages %}
+				<ul class="messages">
+				    {% for message in messages %}
+				    <li {% if message.tags %}class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+				    {% endfor %}
+				</ul>
+			{% endif %}
+		{% endif %}
+	</form>
+
+	<form class="insert-form" action="{% url 'virtuoso_insert' %}" method="POST" enctype="multipart/form-data">
+		{% csrf_token %}
+		<h2>Virtuoso insert form</h2>
+		{% for field in insert_form %}
+			<div class="{{ field.name }}">
+				{{ field.label_tag }}
+				{{ field }}
+
+				<ul class="errorlist">
+				{% for error in field.errors %}
+					<li>{{ error }}</li>
+				{% endfor %}
+				</ul>
+			</div>
+		{% endfor %}
+
+		<input type="submit" class="submit-button">
+
+		{{ insert_form.non_field_errors }}
+
+		{% if active_form == 'insert' %}
+			{% if messages %}
+				<ul class="messages">
+				    {% for message in messages %}
+				    <li {% if message.tags %}class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+				    {% endfor %}
+				</ul>
+			{% endif %}
+		{% endif %}
+	</form>
+</div>
+
+<script>
+var formContainer = document.querySelector('.form-container');
+var insertTrigger = document.querySelector('.insert-trigger')
+var selectTrigger = document.querySelector('.select-trigger')
+
+insertTrigger.addEventListener('click', function(e) {
+	e.preventDefault();
+	formContainer.classList.add('insert');
+	formContainer.classList.remove('select');
+	insertTrigger.classList.add('active');
+	selectTrigger.classList.remove('active');
+});
+
+selectTrigger.addEventListener('click', function(e) {
+	e.preventDefault();
+	formContainer.classList.add('select');
+	formContainer.classList.remove('insert');
+	selectTrigger.classList.add('active');
+	insertTrigger.classList.remove('active');
+});
+</script>
+
+</body>
+</html>

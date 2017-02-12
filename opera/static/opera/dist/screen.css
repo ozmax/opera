@@ -12,6 +12,43 @@ h1 {
 	text-align: center;
 }
 
+.trigger {
+	display: inline-block;
+	border: 2px solid black;
+	border-bottom: none;
+	padding: 10px 20px;
+	box-sizing: border-box;
+
+	color: white;
+	background: black;
+	text-decoration: none;
+}
+
+.trigger.active {
+	position: relative;
+
+	color: black;
+	background: white;
+}
+
+.select-trigger {
+	margin-left: -5px;
+}
+
+.trigger.active::after {
+	content: ' ';
+	display: table;
+
+	position: absolute;
+	width: 100%;
+	height: 3px;
+	top: 100%;
+	left: 0;
+
+	background: white;
+	z-index: 10;
+}
+
 form {
 	margin: 0 auto;
 	text-align: center;
@@ -36,6 +73,10 @@ label {
 	display: inline-block;
 }
 
+.response_type {
+	margin-top: 20px;
+}
+
 .submit-button {
 	padding: 10px 20px;
 	border: 0;
@@ -57,7 +98,7 @@ label {
 	text-align: center;
 }
 
-.errorlist.nonfield li{
+.errorlist.nonfield li {
 	display: inline-block;
 	border: 1px solid red;
 	padding: 20px;
@@ -77,4 +118,20 @@ label {
 .messages li.error {
 	border: 1px solid red;
 	color: red;
+}
+
+.form-container.insert .select-form {
+	display: none;
+}
+
+.form-container.insert .insert-form {
+	display: block;
+}
+
+.form-container.select .insert-form {
+	display: none;
+}
+
+.form-container.select .select-form {
+	display: block;
 }
