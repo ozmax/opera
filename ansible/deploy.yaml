@@ -179,34 +179,44 @@
 
   - name: celeryd init script exists
     template:
-      dest=/etc/init.d/{{ celery_app }}
+      dest=/etc/init.d/{{ celery_service }}
       src=templates/celeryd-{{ project_name }}
     notify:
     - restart celeryd
 
   - name: celery init script permissions
     file:
-      path=/etc/init.d/{{ celery_app }}
+      path=/etc/init.d/{{ celery_service }}
       owner=root
       group=root
       mode=700
 
   - name: celeryd configuration is copied
     template:
-      dest=/etc/default/{{ celery_app }}
+      dest=/etc/default/{{ celery_service }}
       src=templates/{{ celery_service }}-default
 
   - name: celery configuration permissions
     file:
-      path=/etc/default/{{ celery_app }}
+      path=/etc/default/{{ celery_service }}
       owner=root
       group=root
       mode=600
+    notify:
+    - restart celeryd
+
+  - name: ensure celeryd is running
+    become_user: root
+    service: >
+      name={{ celery_service }}
+      state=started
+      enabled=yes
+
 
   handlers:
     - name: reload postgres
       service:
-        name: postgres
+        name: postgresql
         state: reloaded
 
     - name: reload nginx
