@@ -128,7 +128,7 @@ class InsertForm(QueryBaseForm):
                     )
                     notify_remote.delay(notif.pk)
                 if server.url in obj:
-                    NotificationRequest.objects.create(
+                    notif = NotificationRequest.objects.create(
                         remote=server,
                         resource=obj,
                         predicate=predicate,
